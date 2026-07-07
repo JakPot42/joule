@@ -11,9 +11,15 @@ as such rather than silently treated as current.
 """
 from __future__ import annotations
 
-import os
+from demo_mode import is_demo_mode
 
-DEMO_MODE = os.environ.get("DEMO_MODE", "True") == "True"
+# Phase 6, Cluster 5 consistency pass: this used to be a strict
+# `os.environ.get("DEMO_MODE", "True") == "True"` read -- only the literal
+# string "True" counted as demo mode, so "true"/"1"/"yes" would all
+# silently read as DEMO_MODE=False. Reconciled to the shared permissive
+# convention (same as gridpulse/water_monitor always used); see
+# demo_mode.py for the full rationale.
+DEMO_MODE = is_demo_mode()
 CLAUDE_MODEL = "claude-haiku-4-5-20251001"
 
 SCOPE_DISCLAIMER = (

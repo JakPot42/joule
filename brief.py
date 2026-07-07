@@ -4,11 +4,18 @@ this portfolio: every number is computed deterministically upstream
 (smr_screener.py / ally_screener.py) -- Claude only narrates already-
 computed numbers into plain English, never invents or adjusts one.
 DEMO_MODE (default) uses a deterministic template, no API key needed.
+
+Live-mode Claude call delegates to the shared claude_brief.call_claude()
+(Phase 6, Cluster 5 consistency pass) with on_error="fallback" -- matches
+this repo's own prior behavior (a screening command's score/tier is the
+substance; the brief is prose on top, so a Claude failure falls back to
+the already-computed deterministic template rather than crashing).
 """
 from __future__ import annotations
 
 import config
 from ally_screener import AllyScreenResult
+from claude_brief import call_claude
 from smr_screener import SmrScreenResult
 
 
@@ -96,32 +103,29 @@ _ALLY_SYSTEM_PROMPT = (
 )
 
 
-def _claude_brief(system_prompt: str, template_text: str) -> str:
-    import anthropic
-
-    client = anthropic.Anthropic()
-    msg = client.messages.create(
-        model=config.CLAUDE_MODEL, max_tokens=600,
-        system=system_prompt, messages=[{"role": "user", "content": template_text}],
-    )
-    return msg.content[0].text.strip()
-
-
 def generate_smr_brief(r: SmrScreenResult) -> str:
     template = _smr_template(r)
     if config.DEMO_MODE:
         return template
-    try:
-        return _claude_brief(_SMR_SYSTEM_PROMPT, template)
-    except Exception:
-        return template
+    return call_claude(
+        [{"role": "user", "content": template}],
+        system=_SMR_SYSTEM_PROMPT,
+        max_tokens=600,
+        model=config.CLAUDE_MODEL,
+        on_error="fallback",
+        fallback=template,
+    )
 
 
 def generate_ally_brief(r: AllyScreenResult) -> str:
     template = _ally_template(r)
     if config.DEMO_MODE:
         return template
-    try:
-        return _claude_brief(_ALLY_SYSTEM_PROMPT, template)
-    except Exception:
-        return template
+    return call_claude(
+        [{"role": "user", "content": template}],
+        system=_ALLY_SYSTEM_PROMPT,
+        max_tokens=600,
+        model=config.CLAUDE_MODEL,
+        on_error="fallback",
+        fallback=template,
+    )
