@@ -19,8 +19,8 @@ joule installations                   # list the supported installation roster
 joule demo                            # all three modules, flagship demo case
 ```
 
-**Flagship demo:** `joule smr "Naval Station Newport"` — local to the
-builder, real, and ties directly into the NUWC-focused projects (the
+**Flagship demo:** `joule smr "Naval Station Newport"` — local to where
+this was built, real, and ties directly into the NUWC-focused projects (the
 Undersea Acoustic Intelligence Suite and the Cable Resilience Analyzer). Naval Station
 Newport scores **84.4/100 — PRIORITY FOR FURTHER STUDY**: SDC A (lowest
 USGS seismic hazard category), a real 25,163-person nearest population
